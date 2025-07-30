@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+{% block title %}User Dashboard - ParkingPro{% endblock %}
+
+{% block content %}
+<div class="fade-in-up">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h2 class="mb-3">
+                        <i class="fas fa-home me-2 text-primary"></i>Welcome to ParkingPro
+                    </h2>
+                    <p class="lead text-light">Hello, <strong>{{ user.username }}</strong>! Find and book your perfect parking spot.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="stats-card">
+                <div class="stats-number">
+                    <i class="fas fa-calendar-check me-2"></i>{{ total_bookings }}
+                </div>
+                <div class="stats-label">Total Bookings</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stats-card">
+                <div class="stats-number">
+                    <i class="fas fa-clock me-2"></i>{{ active_bookings }}
+                </div>
+                <div class="stats-label">Active Bookings</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stats-card">
+                <div class="stats-number">
+                    <i class="fas fa-building me-2"></i>{{ available_lots }}
+                </div>
+                <div class="stats-label">Available Lots</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stats-card">
+                <div class="stats-number">
+                    <i class="fas fa-dollar-sign me-2"></i>${{ "%.2f"|format(total_spent) }}
+                </div>
+                <div class="stats-label">Total Spent</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <a href="{{ url_for('user.user_lots') }}" class="btn btn-primary w-100 py-3">
+                                <i class="fas fa-map-marker-alt me-2"></i>
+                                <div class="d-block">
+                                    <strong>Find Parking</strong>
+                                    <small class="d-block text-light">Browse available parking lots</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="{{ url_for('user.reservations') }}" class="btn btn-success w-100 py-3">
+                                <i class="fas fa-calendar-check me-2"></i>
+                                <div class="d-block">
+                                    <strong>My Bookings</strong>
+                                    <small class="d-block text-light">View your reservations</small>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Bookings -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history me-2"></i>Recent Bookings
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if last_reservations %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Parking Lot</th>
+                                        <th>Spot</th>
+                                        <th>Booked On</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for reservation in last_reservations %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ reservation.spot.lot.prime_location_name }}</strong>
+                                            <br><small class="text-muted">{{ reservation.spot.lot.address }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-primary">Spot {{ reservation.spot.id }}</span>
+                                        </td>
+                                        <td>
+                                            {{ reservation.parking_timestamp.strftime('%Y-%m-%d %H:%M') }}
+                                        </td>
+                                        <td>
+                                            {% if reservation.leaving_timestamp %}
+                                                <span class="badge bg-secondary">Completed</span>
+                                            {% else %}
+                                                <span class="badge bg-success">Active</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if not reservation.leaving_timestamp %}
+                                                <form method="POST" action="{{ url_for('user.release_spot', reservation_id=reservation.id) }}" class="d-inline">
+                                                    <button type="submit" class="btn btn-sm btn-warning">
+                                                        <i class="fas fa-sign-out-alt me-1"></i>Release
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No bookings yet</h5>
+                            <p class="text-muted">Start by finding a parking lot and making your first booking!</p>
+                            <a href="{{ url_for('user.user_lots') }}" class="btn btn-primary">
+                                <i class="fas fa-search me-2"></i>Find Parking
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Parking Tips
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-start mb-3">
+                        <i class="fas fa-lightbulb text-warning me-2 mt-1"></i>
+                        <div>
+                            <strong class="text-light">Book Early</strong>
+                            <small class="d-block text-light">Reserve your spot in advance for better availability</small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start mb-3">
+                        <i class="fas fa-clock text-info me-2 mt-1"></i>
+                        <div>
+                            <strong class="text-light">Check Duration</strong>
+                            <small class="d-block text-light">Be mindful of your parking duration to avoid extra charges</small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start">
+                        <i class="fas fa-map-marker-alt text-success me-2 mt-1"></i>
+                        <div>
+                            <strong class="text-light">Location Matters</strong>
+                            <small class="d-block text-light">Choose lots close to your destination for convenience</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

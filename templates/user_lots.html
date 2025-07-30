@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% block title %}Available Parking Lots - ParkingPro{% endblock %}
+
+{% block content %}
+<div class="fade-in-up">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h2 class="mb-3 text-primary">
+                        <i class="fas fa-map-marker-alt me-2 text-primary"></i>Available Parking Lots
+                    </h2>
+                    <p class="lead text-light">Find and book your perfect parking spot</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="stats-card">
+                <div class="stats-number">{{ lots|length }}</div>
+                <div class="stats-label">Total Lots</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stats-card">
+                <div class="stats-number">
+                    {% set total_spots = lots|sum(attribute='maximum_number_of_spots') %}
+                    {{ total_spots }}
+                </div>
+                <div class="stats-label">Total Spots</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stats-card">
+                <div class="stats-number">
+                    {% set available_spots = 0 %}
+                    {% for lot in lots %}
+                        {% set available_spots = available_spots + (lot.spots|selectattr('status', 'equalto', 'A')|list|length) %}
+                    {% endfor %}
+                    {{ available_spots }}
+                </div>
+                <div class="stats-label">Available Spots</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stats-card">
+                <div class="stats-number">
+                    {% set avg_price = lots|sum(attribute='price') / lots|length if lots else 0 %}
+                    ${{ "%.2f"|format(avg_price) }}
+                </div>
+                <div class="stats-label">Avg. Price</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Parking Lots List -->
+    <div class="row">
+        {% for lot in lots %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header ">
+                    <h5 class="mb-0 text-success">
+                        <i class="fas fa-building me-2"></i>{{ lot.prime_location_name }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-light">
+                                <i class="fas fa-map-marker-alt me-1"></i>Location
+                            </span>
+                            <span class="fw-bold text-light">{{ lot.address }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-light">
+                                <i class="fas fa-dollar-sign me-1"></i>Price
+                            </span>
+                            <span class="badge bg-success fs-6 text-light">${{ lot.price }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-light">
+                                <i class="fas fa-parking me-1"></i>Available Spots
+                            </span>
+                            <span class="badge bg-primary text-light">
+                                {{ lot.spots|selectattr('status', 'equalto', 'A')|list|length }} / {{ lot.maximum_number_of_spots }}
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-light">
+                                <i class="fas fa-hashtag me-1"></i>Pin Code
+                            </span>
+                            <code>{{ lot.pin_code }}</code>
+                        </div>
+                    </div>
+                    
+                    {% set available_count = lot.spots|selectattr('status', 'equalto', 'A')|list|length %}
+                    {% if available_count > 0 %}
+                        <form action="{{ url_for('user.book_spot', lot_id=lot.id) }}" method="POST">
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-car me-2"></i>Book Spot
+                            </button>
+                        </form>
+                    {% else %}
+                        <div class="text-center">
+                            <span class="badge bg-danger fs-6">
+                                <i class="fas fa-times me-1"></i>Fully Booked
+                            </span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- No Lots Available -->
+    {% if not lots %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-building fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No parking lots available</h5>
+                    <p class="text-muted">Check back later for available parking spots.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 

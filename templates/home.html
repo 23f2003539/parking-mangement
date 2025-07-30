@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% block title %}ParkingPro - Professional Parking Management{% endblock %}
+
+{% block content %}
+<div class="hero-section fade-in-up">
+    <div class="row align-items-center">
+        <div class="col-lg-6">
+            <h1 class="hero-title mb-4">Smart Parking Management</h1>
+            <p class="hero-subtitle mb-4">
+                My final project for MAD course - a parking management system. 
+                Easy booking, real-time availability, and user-friendly interface.
+            </p>
+            <div class="d-flex flex-wrap gap-3">
+                {% if not current_user.is_authenticated %}
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-sign-in-alt me-2"></i>Get Started
+                    </a>
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-user-plus me-2"></i>Create Account
+                    </a>
+                {% else %}
+                    {% if current_user.role == 'admin' %}
+                        <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
+                        </a>
+                    {% elif current_user.role == 'user' %}
+                        <a href="{{ url_for('user.user_dashboard') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-home me-2"></i>User Dashboard
+                        </a>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-lg-6 text-center">
+            <div class="position-relative">
+                <i class="fas fa-parking" style="font-size: 8rem; color: var(--primary-color); opacity: 0.1;"></i>
+                <div class="position-absolute top-50 start-50 translate-middle">
+                    <i class="fas fa-car" style="font-size: 3rem; color: var(--primary-color);"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="row mt-5">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 text-center">
+            <div class="card-body">
+                <div class="mb-3">
+                    <i class="fas fa-clock fa-3x text-primary"></i>
+                </div>
+                <h5 class="card-title">24/7 Availability</h5>
+                <p class="card-text text-muted">
+                    Access parking spots anytime, anywhere with our round-the-clock booking system.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 text-center">
+            <div class="card-body">
+                <div class="mb-3">
+                    <i class="fas fa-shield-alt fa-3x text-success"></i>
+                </div>
+                <h5 class="card-title">Secure & Reliable</h5>
+                <p class="card-text text-muted">
+                    Your data and transactions are protected with enterprise-grade security.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 text-center">
+            <div class="card-body">
+                <div class="mb-3">
+                    <i class="fas fa-mobile-alt fa-3x text-warning"></i>
+                </div>
+                <h5 class="card-title">Mobile Friendly</h5>
+                <p class="card-text text-muted">
+                    Responsive design works perfectly on all devices and screen sizes.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Stats Section -->
+    {% if current_user.is_authenticated and stats %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3 class="text-center mb-4">Quick Stats</h3>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="stats-card">
+                <div class="stats-number">
+                    <i class="fas fa-building me-2"></i>{{ stats.total_lots }}
+                </div>
+                <div class="stats-label">Parking Lots</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="stats-card">
+                <div class="stats-number">
+                    <i class="fas fa-parking me-2"></i>{{ stats.total_spots }}
+                </div>
+                <div class="stats-label">Total Spots</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="stats-card">
+                <div class="stats-number">
+                    <i class="fas fa-users me-2"></i>{{ stats.total_users }}
+                </div>
+                <div class="stats-label">Registered Users</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="stats-card">
+                <div class="stats-number">
+                    <i class="fas fa-star me-2"></i>{{ "%.1f"|format(stats.avg_rating) }}
+                </div>
+                <div class="stats-label">User Rating</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %} 
